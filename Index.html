@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taipei Public Tourism Data</title>
+    <link rel="stylesheet" type="text/css" href="./assets/style.css">
+</head>
+
+<body>
+
+    <div class="frame">
+        <div class="left"> My Website </div>
+        <div class="desktop-menu">
+            <div class="item">item 1</div>
+            <div class="item">item 2</div>
+            <div class="item">item 3</div>
+            <div class="item">item 4</div>
+        </div>
+        <div class="mobile-menu" onclick="popup();">
+            <img src="./assets/fb-web-35-512.png" width="30" height="30">
+        </div>
+
+    </div>
+
+    <div class="welcome">
+        <div class="text" id="content" onclick="change();">Welcome to Myhome </div>
+    </div>
+
+    <div class="section" id="section"></div>
+
+    <script>
+        function change() {
+            let elem = document.querySelector("#content");
+            if (elem.innerHTML == "Just saying") {
+                elem.innerHTML = "Welcome to Myhome";
+
+            } else {
+                elem.innerHTML = "Just saying";
+            }
+
+        }
+        function popup() {
+            let elem = document.querySelector("#popup");
+            elem.style.display = "block"
+
+        }
+
+        function close1() {
+            let elem = document.querySelector("#popup");
+            elem.style.display = "none"
+
+        }
+
+        const ul = document.getElementById('authors');
+        const url = 'https://data.taipei/api/v1/dataset/36847f3f-deff-4183-a5bb-800737591de5?scope=resourceAquire';
+
+        fetch(url)
+        .then((resp) => resp.json())
+        .then(function(data) {
+            let scenes = data.result.results;
+            let times = 1;
+            return scenes.map(function(scene) {
+                if(times > 8) return;
+
+                var section = document.getElementById('section');
+                
+                var content = document.createElement('div');
+                content.className = "content";
+                
+                var newImg = document.createElement('img');
+                newImg.style.width = "100%";
+                newImg.style.height = "80%";
+
+                section.appendChild(content);
+                newImg.src = "http" + scene.file.split("http")[1];
+
+                content.appendChild(newImg);
+
+                var heading = document.createElement('div');
+                heading.className = "heading";
+                content.appendChild(heading);
+                
+                //heading.style.backgroundColor = "rgb(88, 154, 241)";
+                var textNode = document.createTextNode(scene.stitle);
+                heading.appendChild(textNode);
+
+                times++;
+          })
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    </script>
+
+
+
+
+</body></html>
