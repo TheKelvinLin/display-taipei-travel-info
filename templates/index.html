@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taipei Public Tourism Data</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+</head>
+
+<body>
+
+    <div class="frame" id="frame">
+        <div class="left"> My Website </div>
+        <div class="desktop-menu">
+            <div class="item">item 1</div>
+            <div class="item">item 2</div>
+            <div class="item">item 3</div>
+            <div class="item">item 4</div>
+        </div>
+        <div class="mobile-menu" onclick="trigger();">
+            <img src="/static/fb-web-35-512.png" width="30" height="30">
+        </div>
+
+    </div>
+
+    <div class="welcome" id="welcome">
+        <div class="text" id="topic">Welcome to Myhome
+            <p>
+                <input type="text" class="flask-input" id="keyword">
+                <input type="button" value="查詢" id="search_button" onclick="keyword_search()">
+            <p id="search_info"></p>
+            </p>
+        </div>
+
+
+    </div>
+    <div class="u_section" id="u_section"></div>
+
+    <!--<button id="loadMore"> Load More </button>-->
+    <script>
+        var hostIP = "18.224.68.14";
+        //var hostIP = "127.0.0.1";
+        var pageNumber = 0;
+
+        window.onscroll = function (ev) {
+            var rect = document.getElementById("u_section").getBoundingClientRect();
+            var bottom = rect.bottom;
+
+            if (bottom <= window.innerHeight) {
+                var url = "http://" + hostIP + ":3000/api/attractions?page=" + pageNumber;
+                getDataThruAPI(url);
+            }
+        };
+
+        var url = "http://" + hostIP + ":3000/api/attractions?page=" + pageNumber;
+        getDataThruAPI(url, 0);
+
+        function keyword_search() {
+            var url = "api/attractions?keyword=" + document.getElementById("keyword").value;
+            getDataThruAPI(url, 1);
+        }
+
+        function getDataThruAPI(url, flag) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open("GET", url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var json = JSON.parse(xhr.responseText);
+                    //console.log(json);
+
+                    if (flag == 1) {
+                        let section = document.getElementById('section');
+                        if (section != null) { section.remove(); }
+                    }
+
+                    if (json.error) {
+                        document.getElementById('search_info').textContent = json.message;
+                        return;
+                    }
+                    dynamicCreateElement(json, flag);
+
+                }
+            };
+            xhr.send();
+        }
+
+        function dynamicCreateElement(json, flag) {
+
+            createElementHead();
+            //console.log(json);
+            if (flag == 1) {
+
+                for (var key in json) {
+                    pageNumber = json[key].nextPage;
+                    var data = json[key].data;
+                    for (var key in data) {
+                        createElementBody(data[key].images, data[key].name)
+                    }
+                }
+            }
+            else {
+                var data = json.data;
+                pageNumber = json.nextPage;
+                for (var key in data) {
+                    createElementBody(data[key].images, data[key].name)
+                }
+            }
+
+        }
+
+        function createElementHead() {
+            var u_section = document.getElementById('u_section');
+            u_section.className = "u_section";
+            var section = document.createElement('div');
+            section.className = "section";
+            section.setAttribute("id", "section");
+            u_section.appendChild(section);
+        }
+
+        function createElementBody(images, name) {
+            var section = document.getElementById('section');
+            var content = document.createElement('div');
+            content.className = "content";
+            section.appendChild(content);
+            var newImg = document.createElement('img');
+            newImg.src = images;
+            newImg.style.width = "100%";
+            newImg.style.height = "80%";
+            newImg.className = "image";
+            content.appendChild(newImg);
+            var heading = document.createElement('div');
+            heading.className = "heading";
+            content.appendChild(heading);
+            var textNode = document.createTextNode(name);
+            heading.appendChild(textNode);
+        }
+    </script>
+</body>
+
+</html>
